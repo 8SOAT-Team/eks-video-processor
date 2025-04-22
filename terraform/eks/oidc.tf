@@ -7,13 +7,13 @@ resource "aws_iam_role" "irsa_sqs_role" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = "arn:aws:iam::585008076257:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/3B3D9AC7DA39D280541FF3C278EF3B84"
+          Federated = "arn:aws:iam::585008076257:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D"
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "oidc.eks.us-east-1.amazonaws.com/id/3B3D9AC7DA39D280541FF3C278EF3B84:sub" = "system:serviceaccount:fast-video:notificacao-api-sa",
-            "oidc.eks.us-east-1.amazonaws.com/id/3B3D9AC7DA39D280541FF3C278EF3B84:aud" = "sts.amazonaws.com"
+            "oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D:sub" = "system:serviceaccount:fast-video:notificacao-api-sa",
+            "oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D:aud" = "sts.amazonaws.com"
           }
         }
       }
