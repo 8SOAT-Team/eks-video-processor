@@ -50,3 +50,181 @@ terraform init
 terraform apply
 
 ```
+
+Claro, Darlei! Aqui está uma documentação clara e objetiva sobre o processo de **habilitar o OIDC via `eksctl`** e **ajustar o Terraform (`irsa.tf`) para refletir o novo endpoint** do cluster EKS.
+
+---
+
+# 📘 Configurando IRSA com OIDC via `eksctl` + Terraform
+
+## ✅ Visão geral
+
+Este processo habilita o OIDC no cluster Amazon EKS usando `eksctl` e ajusta o código Terraform (`irsa.tf`) para autenticar workloads via IRSA (IAM Roles for Service Accounts).
+
+---
+
+## 🧩 Pré-requisitos
+
+- Cluster EKS já provisionado
+- `eksctl` instalado ([guia oficial](https://eksctl.io/introduction/installation/))
+- Acesso ao AWS CLI configurado (`~/.aws/credentials`)
+- Terraform CLI (versão compatível com o Terraform Cloud)
+
+---
+
+## ✅ Etapa 1: Habilitar o OIDC Provider via `eksctl`
+
+> Quando o cluster é recriado, ele recebe um **novo OIDC issuer** e um novo endpoint. É necessário habilitar esse novo issuer no IAM da conta AWS.
+
+### 📌 Comando:
+
+```bash
+eksctl utils associate-iam-oidc-provider \
+  --region us-east-1 \
+  --cluster video-processor-eks-cluster \
+  --approve
+```
+
+Esse comando:
+
+- Detecta o `issuer` do cluster
+- Cria o provedor OIDC correspondente no IAM
+- Garante que o IRSA possa usar `AssumeRoleWithWebIdentity`
+
+---
+
+## ✅ Etapa 2: Atualizar o Terraform (`irsa.tf`)
+
+Após a criação do novo OIDC Provider, é necessário **referenciá-lo manualmente no Terraform**, já que ele **não será gerenciado diretamente pelo Terraform**.
+
+### ✅ Bloco Terraform atualizado (`irsa.tf`):
+
+```hcl
+resource "aws_iam_role" "irsa_sqs_role" {
+  name = "notificacao-api-irsa-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Federated = "arn:aws:iam::585008076257:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D"
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringEquals = {
+            "oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D:sub" = "system:serviceaccount:fast-video:notificacao-api-sa",
+            "oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D:aud" = "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "sqs_policy" {
+  name = "notificacao-api-sqs-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_sqs_policy" {
+  role       = aws_iam_role.irsa_sqs_role.name
+  policy_arn = aws_iam_policy.sqs_policy.arn
+}
+```
+
+> ⚠️ **Substitua o ID do OIDC pelo atual**, que pode ser verificado com:
+
+```bash
+aws eks describe-cluster \
+  --region us-east-1 \
+  --name video-processor-eks-cluster \
+  --query "cluster.identity.oidc.issuer" \
+  --output text
+```
+
+---
+
+## ✅ Etapa 3: Aplicar Terraform
+
+Após editar o `irsa.tf`:
+
+```bash
+terraform init
+terraform apply
+```
+
+---
+
+## ✅ Etapa 4: Criar o `ServiceAccount` com anotação IRSA
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: notificacao-api-sa
+  namespace: fast-video
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::585008076257:role/notificacao-api-irsa-role
+```
+
+Aplique com:
+
+```bash
+kubectl apply -f serviceaccount.yaml
+```
+
+---
+
+## ✅ Etapa 5: Garantir que o pod está usando o `ServiceAccount`
+
+No `Deployment` da sua aplicação:
+
+```yaml
+spec:
+  serviceAccountName: notificacao-api-sa
+```
+
+Depois, reinicie o pod:
+
+```bash
+kubectl rollout restart deployment notificacao-api -n fast-video
+```
+
+---
+
+## ✅ Validação final
+
+Execute:
+
+```bash
+kubectl exec -it <pod-name> -n fast-video -- env | grep AWS
+```
+
+Você deve ver:
+
+```
+AWS_ROLE_ARN=arn:aws:iam::585008076257:role/notificacao-api-irsa-role
+AWS_WEB_IDENTITY_TOKEN_FILE=/var/run/secrets/eks.amazonaws.com/serviceaccount/token
+```
+
+Isso confirma que o pod está autenticado com IRSA 🎯
+
+---
+
+Se quiser, posso te ajudar a colocar isso em um `README.md` ou Wiki para documentar no repositório. Deseja?
