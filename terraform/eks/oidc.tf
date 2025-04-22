@@ -1,13 +1,3 @@
-data "tls_certificate" "eks" {
-  url = "https://oidc.eks.us-east-1.amazonaws.com/id/3B3D9AC7DA39D280541FF3C278EF3B84"
-}
-
-resource "aws_iam_openid_connect_provider" "eks" {
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
-  url             = "https://oidc.eks.us-east-1.amazonaws.com/id/3B3D9AC7DA39D280541FF3C278EF3B84"
-}
-
 resource "aws_iam_role" "irsa_sqs_role" {
   name = "notificacao-api-irsa-role"
 
@@ -17,7 +7,7 @@ resource "aws_iam_role" "irsa_sqs_role" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = aws_iam_openid_connect_provider.eks.arn
+          Federated = "arn:aws:iam::585008076257:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/3B3D9AC7DA39D280541FF3C278EF3B84"
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
@@ -31,7 +21,6 @@ resource "aws_iam_role" "irsa_sqs_role" {
   })
 }
 
-# Policy com permissões para consumir SQS
 resource "aws_iam_policy" "sqs_policy" {
   name = "notificacao-api-sqs-policy"
 
@@ -51,3 +40,7 @@ resource "aws_iam_policy" "sqs_policy" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "attach_sqs_policy" {
+  role       = aws_iam_role.irsa_sqs_role.name
+  policy_arn = aws_iam_policy.sqs_policy.arn
+}
