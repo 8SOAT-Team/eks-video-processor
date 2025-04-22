@@ -50,9 +50,6 @@ terraform init
 terraform apply
 
 ```
-
-Claro, Darlei! Aqui está uma documentação clara e objetiva sobre o processo de **habilitar o OIDC via `eksctl`** e **ajustar o Terraform (`irsa.tf`) para refletir o novo endpoint** do cluster EKS.
-
 ---
 
 # 📘 Configurando IRSA com OIDC via `eksctl` + Terraform
