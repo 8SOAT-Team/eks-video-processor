@@ -5,13 +5,13 @@ data "aws_eks_cluster" "cluster" {
 data "aws_caller_identity" "current" {}
 
 data "tls_certificate" "eks" {
-  url = data.aws_eks_cluster.cluster.identity.oidc.issuer
+  url = data.aws_eks_cluster.cluster.identity.oidc[0].issuer
 }
 
 resource "aws_iam_openid_connect_provider" "eks" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
-  url             = data.aws_eks_cluster.cluster.identity.oidc.issuer
+  url             = data.aws_eks_cluster.cluster.identity.oidc[0].issuer
 }
 
 resource "aws_iam_role" "irsa_sqs_role" {
@@ -28,7 +28,7 @@ resource "aws_iam_role" "irsa_sqs_role" {
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "${replace(data.aws_eks_cluster.cluster.identity.oidc.issuer, "https://", "")}:sub" = "system:serviceaccount:fast-video:notificacao-api-sa"
+            "${replace(data.aws_eks_cluster.cluster.identity.oidc[0].issuer, "https://", "")}:sub" = "system:serviceaccount:fast-video:notificacao-api-sa"
           }
         }
       }
