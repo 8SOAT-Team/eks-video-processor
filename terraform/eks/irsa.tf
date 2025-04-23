@@ -1,4 +1,4 @@
-resource "aws_iam_role" "irsa_sqs_role" {
+#   resource "aws_iam_role" "irsa_sqs_role" {
 #   name = "notificacao-api-irsa-role"
 
 #   assume_role_policy = jsonencode({
