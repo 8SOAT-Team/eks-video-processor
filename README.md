@@ -94,7 +94,7 @@ Esse comando:
 
 Após a criação do novo OIDC Provider, é necessário **referenciá-lo manualmente no Terraform**, já que ele **não será gerenciado diretamente pelo Terraform**.
 
-### ✅ Bloco Terraform atualizado (`irsa.tf`):
+### ✅ Bloco Terraform atualizado (`irsa.tf`) em FEDERATED:
 
 ```hcl
 resource "aws_iam_role" "irsa_sqs_role" {
@@ -120,29 +120,6 @@ resource "aws_iam_role" "irsa_sqs_role" {
   })
 }
 
-resource "aws_iam_policy" "sqs_policy" {
-  name = "notificacao-api-sqs-policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "sqs:ReceiveMessage",
-          "sqs:DeleteMessage",
-          "sqs:GetQueueAttributes"
-        ],
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "attach_sqs_policy" {
-  role       = aws_iam_role.irsa_sqs_role.name
-  policy_arn = aws_iam_policy.sqs_policy.arn
-}
 ```
 
 > ⚠️ **Substitua o ID do OIDC pelo atual**, que pode ser verificado com:
