@@ -80,14 +80,6 @@ eksctl utils associate-iam-oidc-provider \
   --approve
 ```
 
-Esse comando:
-
-- Detecta o `issuer` do cluster
-- Cria o provedor OIDC correspondente no IAM
-- Garante que o IRSA possa usar `AssumeRoleWithWebIdentity`
-
----
-
 ## Atualizar o Terraform (`irsa.tf`)
 
 Após a criação do novo OIDC Provider, é necessário **referenciá-lo manualmente no Terraform**, já que ele **não será gerenciado diretamente pelo Terraform**.
