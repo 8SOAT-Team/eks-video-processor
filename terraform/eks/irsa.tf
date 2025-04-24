@@ -7,7 +7,7 @@ resource "aws_iam_role" "irsa_sqs_role" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = "arn:aws:iam::585008076257:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D"
+          Federated = "arn:aws:iam::585008076257:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/C7545EDFD839E6727140DB9990D76835"
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
