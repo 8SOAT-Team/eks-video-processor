@@ -12,8 +12,8 @@ resource "aws_iam_role" "irsa_sqs_role" {
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D:sub" = "system:serviceaccount:fast-video:notificacao-api-sa",
-            "oidc.eks.us-east-1.amazonaws.com/id/7A537DEE0765B3CB34001EEAE1288D8D:aud" = "sts.amazonaws.com"
+            "oidc.eks.us-east-1.amazonaws.com/id/C7545EDFD839E6727140DB9990D76835:sub" = "system:serviceaccount:fast-video:notificacao-api-sa",
+            "oidc.eks.us-east-1.amazonaws.com/id/C7545EDFD839E6727140DB9990D76835:aud" = "sts.amazonaws.com"
           }
         }
       }
