@@ -40,7 +40,41 @@ resource "aws_iam_policy" "sqs_policy" {
   })
 }
 
+resource "aws_iam_policy" "ebs_csi_policy" {
+  name = "notificacao-api-ebs-csi-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:CreateSnapshot",
+          "ec2:AttachVolume",
+          "ec2:DetachVolume",
+          "ec2:ModifyVolume",
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeInstances",
+          "ec2:DescribeSnapshots",
+          "ec2:DescribeTags",
+          "ec2:DescribeVolumes",
+          "ec2:CreateTags",
+          "ec2:DeleteTags",
+          "ec2:CreateVolume",
+          "ec2:DeleteVolume"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "attach_sqs_policy" {
   role       = aws_iam_role.irsa_sqs_role.name
   policy_arn = aws_iam_policy.sqs_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "attach_ebs_policy" {
+  role       = aws_iam_role.irsa_sqs_role.name
+  policy_arn = aws_iam_policy.ebs_csi_policy.arn
 }
