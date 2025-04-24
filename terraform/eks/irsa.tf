@@ -30,9 +30,9 @@ resource "aws_iam_policy" "sqs_policy" {
       {
         Effect = "Allow",
         Action = [
-          "sqs:ReceiveMessage",
-          "sqs:DeleteMessage",
-          "sqs:GetQueueAttributes"
+          "sqs:*",
+          "sns:*",
+          "rds:*"
         ],
         Resource = "*"
       }
