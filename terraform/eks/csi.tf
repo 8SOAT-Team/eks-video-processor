@@ -1,5 +1,5 @@
 resource "aws_iam_role" "ebs_csi_irsa_role" {
-  name = "ebs-csi-driver-irsa-role"
+  name = "ebs-csi-irsa-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -23,7 +23,7 @@ resource "aws_iam_role" "ebs_csi_irsa_role" {
   })
 }
 
-resource "aws_iam_policy" "ebs_csi_policy" {
+resource "aws_iam_policy" "ebs_csi_driver_policy" {
   name = "ebs-csi-driver-policy"
 
   policy = jsonencode({
@@ -40,7 +40,8 @@ resource "aws_iam_policy" "ebs_csi_policy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ebs_csi_attach_policy" {
+resource "aws_iam_role_policy_attachment" "attach_ebs_policy" {
   role       = aws_iam_role.ebs_csi_irsa_role.name
-  policy_arn = aws_iam_policy.ebs_csi_policy.arn
+  policy_arn = aws_iam_policy.ebs_csi_driver_policy.arn
 }
+
