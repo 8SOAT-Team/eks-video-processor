@@ -80,6 +80,20 @@ eksctl utils associate-iam-oidc-provider \
   --approve
 ```
 
+## Install Dapr
+
+```bash
+helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
+--namespace kube-system \
+--create-namespace
+```
+
+```bash
+kubectl annotate serviceaccount ebs-csi-controller-sa \
+-n kube-system \
+eks.amazonaws.com/role-arn=arn:aws:iam::585008076257:role/ebs-csi-irsa-role --overwrite
+```
+
 ## Atualizar o Terraform (`irsa.tf`)
 
 Após a criação do novo OIDC Provider, é necessário **referenciá-lo manualmente no Terraform**, já que ele **não será gerenciado diretamente pelo Terraform**.
