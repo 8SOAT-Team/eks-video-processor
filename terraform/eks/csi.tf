@@ -7,15 +7,15 @@ resource "aws_iam_role" "ebs_csi_irsa_role" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = "arn:aws:iam::585008076257:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/BDADA465F58847FCCD04B087060C4552"
+          Federated = "arn:aws:iam::585008076257:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/2B8CC646D06164A5E063E9AAEB1A7736"
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "oidc.eks.us-east-1.amazonaws.com/id/BDADA465F58847FCCD04B087060C4552:aud" = "sts.amazonaws.com"
+            "oidc.eks.us-east-1.amazonaws.com/id/2B8CC646D06164A5E063E9AAEB1A7736:aud" = "sts.amazonaws.com"
           },
           StringLike = {
-            "oidc.eks.us-east-1.amazonaws.com/id/BDADA465F58847FCCD04B087060C4552:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+            "oidc.eks.us-east-1.amazonaws.com/id/2B8CC646D06164A5E063E9AAEB1A7736:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
           }
         }
       }
