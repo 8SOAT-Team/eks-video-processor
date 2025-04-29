@@ -80,7 +80,7 @@ eksctl utils associate-iam-oidc-provider \
   --approve
 ```
 
-## Install Dapr
+## Install CSI
 
 ```bash
 helm install aws-ebs-csi-driver aws-ebs-csi-driver/aws-ebs-csi-driver \
@@ -164,6 +164,14 @@ aws eks describe-cluster \
   --name video-processor-eks-cluster \
   --query "cluster.identity.oidc.issuer" \
   --output text
+```
+## INSTALL DAPR
+
+```BASH
+helm repo add dapr https://dapr.github.io/helm-charts/
+helm repo update
+
+helm install dapr dapr/dapr --namespace dapr-system --create-namespace
 ```
 
 ---
