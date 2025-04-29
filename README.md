@@ -98,8 +98,9 @@ eks.amazonaws.com/role-arn=arn:aws:iam::585008076257:role/ebs-csi-irsa-role --ov
 
 Após a criação do novo OIDC Provider, é necessário **referenciá-lo manualmente no Terraform**, já que ele **não será gerenciado diretamente pelo Terraform**.
 
-### Bloco Terraform atualizado (`irsa.tf`) em FEDERATED:
+### Bloco Terraform atualizado (`irsa.tf e csi.tf`) em FEDERATED:
 
+### irsa.tf
 ```hcl
 resource "aws_iam_role" "irsa_sqs_role" {
   name = "notificacao-api-irsa-role"
@@ -125,6 +126,35 @@ resource "aws_iam_role" "irsa_sqs_role" {
 }
 
 ```
+
+### csi.tf
+
+```hcl
+resource "aws_iam_role" "ebs_csi_irsa_role" {
+  name = "ebs-csi-irsa-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Federated = "arn:aws:iam::<account_id>:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/<oicd>"
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringEquals = {
+            "oidc.eks.us-east-1.amazonaws.com/id/<oicd>:aud" = "sts.amazonaws.com"
+          },
+          StringLike = {
+            "oidc.eks.us-east-1.amazonaws.com/id/<oicd>:sub" = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+          }
+        }
+      }
+    ]
+  })
+}
+```hcl
 
 > ⚠️ **Substitua o ID do OIDC pelo atual**, que pode ser verificado com:
 
